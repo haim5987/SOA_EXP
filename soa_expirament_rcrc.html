@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>CCP</title>
+  <script src="jspsych/jspsych.js"></script>
+  <script src="jspsych/plugin-html-keyboard-response.js"></script>
+  <script src="jspsych/plugin-image-button-response.js"></script>
+  <script src="jspsych/plugin-survey.js"></script>
+  <script src="jspsych/plugin-survey-text.js"></script>
+  <script src="jspsych/plugin-call-function.js"></script>
+  <script src="jspsych/plugin-instructions.js"></script>
+  <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body></body>
+<script>
+  // Globals
+  const stim_list = Math.floor(Math.random() * 2);
+  // const chioce_prompt = "<p style=word-wrap: break-word; font-size: 500px; font-weight: bold; text-align:center;>To what extent do you like this food?";
+  const back_space2 = "&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"
+  const chioce_prompt = "<div> <div style='word-wrap: break-word; margin-left:150px; margin-right:150px; font-size: 15px; text-align:center;'> Not at all &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + back_space2 + "Very much</div> <div> <div style='word-wrap: break-word; font-weight: bold; margin-left:100px; margin-right:100px; font-size: 20px; text-align:center;'> <br>To what extent do you like this food?</div>"
+  
+  
+    // const stim_list = jsPsych.randomization.repeat([0, 1], 1);
+  console.log(stim_list)
+  if (stim_list == 0){
+    var STIM_TYPE = "good"
+  }  
+  else{
+    var STIM_TYPE = "bad"
+  }
+  var GOOD_MAP = {}
+
+  const press_key = "<br><br><br><br><br><br><br><br><br><br><br><br><b>Press space bar to continue</b>"
+  const height = 475
+  const width = 720 
+  var image = ''
+  if (STIM_TYPE == "bad") image = "images/bad";
+  else if (STIM_TYPE == "good") image = "images/good";
+  else image = "images/"
+   
+  const jpg = ".jpg"
+
+  // var EXAMPLE_DECISION1 = ['laptops', 'desktops'];
+  var instructionPages1 = [
+    '<div style="display: flex; flex-direction: column; justify-content: center;"><div>Please read the following instructions carefully.' +
+    '<br><br>' +
+    'In this study we are interested in how people make various types of decisions. <br>On the next screens, we will show you pictures of foods which we will ask you to rate according to your liking. <br><br>For example:<br><br>' +
+    '<div style=" border: 2px solid #555;"> <img src="images/1.jpg" width="550" height="450"/></div><b><br>Press space bar to continue</div>'];
+
+
+  var instructionPages2 = [
+    '<div style="display: flex; flex-direction: column; justify-content: center;"><div>Please read the following instructions carefully.' +
+    '<br><br>' +
+    'After ranking some pictures you will ask to prefer on of two pictures.  <br>Prefering between two pictures will be by using L and D arrows. <br><br>For example:<br><br>' +
+    '<div style=" border: 2px solid #555;"> <img src="images/2.jpg" width="960" height="450"/></div><b><br>Press space bar to continue</div>'];
+
+  var image_lst = []
+  
+  const jsPsych = initJsPsych({
+    // on_finish: function () {
+    //   console.log(JSON.parse(jsPsych.data.get().json()))
+    //   jsPsych.data.displayData('json')
+    // }
+  });
+  var timeline = [];
+
+  var welcome = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "Welcome!<br><br> In this study you will complete a decision making task.<br> On the next page you will be presented with a general consent form before continuing on to the study." + press_key,
+    choices: [" "]
+  };
+  timeline.push(welcome);
+
+  // Instructions page explaning about the experiment the subjects are going to take.
+
+  var instructions = {
+    type: jsPsychSurvey,
+    pages: [[     
+      {
+        type: 'html',
+        prompt: '<p style="font-size:20px;text-align: left;margin-top:80px; margin-left: 300px;margin-right: 300px;">In this study, we are interested in how people make decisions.<br><br> If you agree to participate, you will be asked to complete a computerized decision making task. All responses will remain anonymous.<br><br> Taking part in this study is voluntary. If you withdraw at any time, you will receive no monetary compensation, otherwise you will receive the amount specified in the description of the study.<br><br> If there is anything about the study or taking part in it that is unclear or that you do not understand, please contact the researcher of this study through a message in the Prolific messaging system.</p>',
+        button_label_previous	: 'continue', 
+        button_label_finish	: "continue", 
+        button_label_next	: 'continue', 
+      },
+      {
+        type: 'multi-choice',
+        prompt: 'I agree to participate',
+        name: '',
+        button_label_previous	: 'continue', 
+        button_label_finish	: "continue", 
+        button_label_next	: 'continue', 
+        options: ['Yes', 'No'], 
+        required: true
+      }]]
+  }
+  timeline.push(instructions)
+
+  var check_ans = {
+    type: jsPsychCallFunction,
+    func: function(){
+      data = JSON.parse(jsPsych.data.get().json())[1]['response']['question1']
+      if (data == 'No'){
+        jsPsych.endExperiment('Thank you for your response.<br><br> You have finshed the experiment.')
+      }
+    }
+
+  }
+timeline.push(check_ans)
+
+var id = {
+  type: jsPsychSurveyText,
+  questions: [
+    {prompt: 'Please enter your Prolific ID:'}
+  ]
+}
+timeline.push(id)
+
+var instructions_1 = {
+    type: jsPsychInstructions,
+    key_forward: ' ',
+    pages: instructionPages1,
+    data: {test_part: 'instructions'}
+  };
+timeline.push(instructions_1)
+
+
+var instructions_2 = {
+    type: jsPsychInstructions,
+    key_forward: ' ',
+    pages: instructionPages2,
+    data: {test_part: 'instructions'}
+  };
+timeline.push(instructions_2)
+  
+
+  var trial_instruction = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "<b>On a scale of 1 to 10, choose the number represent how much do you like this image </b> <br> (-4 - Not at all, 4 - Very much)." + press_key,
+    choices: [" "]
+  };
+  timeline.push(trial_instruction);
+
+  const images_num = 30
+  const range = [...Array(images_num).keys()];
+  const shuffle_list = jsPsych.randomization.repeat(range, 1);
+  // console.log(shuffle_list)
+  for (let i = 0; i < images_num; ++i) {
+    timeline.push({
+      type: jsPsychImageButtonResponse,
+      // stimulus: image + String(shuffle_list[i]) + '.jpg',
+      stimulus: image + String(shuffle_list[i]) + '.jpg',
+      choices: [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+      prompt: chioce_prompt,
+      stimulus_height: height,
+      stimulus_width: width
+    });
+  }
+
+  var after_rate0 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "On the next screens, we will show you each time two pictures of foods, and ask you to decide between them." + press_key,
+    choices: [" "],
+  }
+  timeline.push(after_rate0)
+
+  var push_to_list = {
+    type: jsPsychCallFunction,
+    func: function(){ 
+      choice_lst = get_prefrence_choice_object_lst(get_pairs_lst(get_equal_pairs(7)))
+      for (let i = 0; i < choice_lst.length; ++i){
+        image_lst.push(choice_lst[i])
+      }
+    }
+  }
+  timeline.push(push_to_list)
+
+
+
+  // const choice_shuffle_list = jsPsych.randomization.repeat([...Array(choice_num).keys()], 1);
+  for (let i = 0; i < 2; ++i) {
+    timeline.push( {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function(){
+        return image_lst[i]
+        },
+      choices: ['l','d']
+    })
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "",
+      choices: "NO_KEYS",
+      trial_duration: 100
+    })
+  };
+
+  // var after_prefrence = {
+  //   type: jsPsychSurvey,
+  //   pages: [{
+  //       type: 'multi-choice',
+  //       prompt: "You Have finshied the second task. On the next task you will ask again to choose the number represent how much do you like this image on scale of 1-10",
+  //       name: 'VegetablesLike', 
+  //       options: ['Yes', 'No'], 
+  //       required: true
+  //     },]
+  // }
+
+  var after_prefrence = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "We will now ask you to rate the foods  again. Please note that this is not a memory test, so please rate the foods according to your liking." + press_key,
+    choices: [" "],
+  }
+  timeline.push(after_prefrence)
+
+  for (let i = 0; i < images_num; ++i) {
+    timeline.push({
+      type: jsPsychImageButtonResponse,
+      stimulus: image + String(shuffle_list[i]) + '.jpg',
+      choices: [-4, -3, -2, -1, 0, 1, 2, 3, 4],
+      prompt: chioce_prompt,
+      // prompt: "<br> Not at all" + back_space2 + "Very much",
+      stimulus_height: height,
+      stimulus_width: width
+    });
+  }
+
+  var after_rate1 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "On the next screens, we will show you each time two pictures of foods, and ask you to decide between them." + press_key,
+    choices: [" "],
+  }
+  timeline.push(after_rate1)
+
+
+  for (let i = 0; i < 2; ++i) {
+    timeline.push( {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function(){
+        return image_lst[i + 2]
+        },
+      choices: ['l','d']
+    })
+    timeline.push({
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: "",
+      choices: "NO_KEYS",
+      trial_duration: 100
+    })
+  };
+
+  var after_rate1 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "You Have finshied the experiment. Well done!",
+    choices: [" "],
+  }
+  timeline.push(after_rate1)
+
+
+  // Helper Functions
+
+  function clear_repatitons(equal_pairs){
+    var bool = true
+    var equlas_filtered_lst = []
+    for (let i = 0; i < equal_pairs.length; ++i){
+      for (let j = 0; j < equlas_filtered_lst.length; ++j){
+        if (equal_pairs[i][0] == equlas_filtered_lst[j][0] || equal_pairs[i][1] == equlas_filtered_lst[j][0] || 
+        equal_pairs[i][0] == equlas_filtered_lst[j][1] || equal_pairs[i][1] == equlas_filtered_lst[j][1]){
+          bool = false
+          break
+        }
+      }
+      if (bool) 
+        equlas_filtered_lst.push(equal_pairs[i])
+      bool = true
+    }
+    return equlas_filtered_lst
+  }
+
+  function get_equal_pairs(data_num) {
+    var response_answear_json = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [] };
+    var data = JSON.parse(jsPsych.data.get().json())
+    for (let i = data_num; i < data_num + images_num; ++i)
+      response_answear_json[data[i]['response']].push(data[i]['stimulus'])
+    var res = []
+    for (let i = 0; i < 9; ++i){
+      var temp = jsPsych.randomization.repeat(response_answear_json[i], 1)
+      res.push(temp)
+    }
+    return res;
+  }
+
+
+  function get_pairs_lst(equal_pairs_json) {
+    equal_pairs = []
+    prior_lst = get_prior_lst()
+    var first_prior = prior_lst[0], second_prior = prior_lst[1], third_prior = prior_lst[2], fourth_prior = 4
+    var temp_list = []
+    
+    append_by_prior(equal_pairs_json, first_prior, equal_pairs)
+    append_by_prior(equal_pairs_json, second_prior, equal_pairs)
+    append_by_prior(equal_pairs_json, third_prior, equal_pairs)
+    append_by_prior(equal_pairs_json, fourth_prior, equal_pairs)
+    if (equal_pairs.length < 4){
+      jsPsych.endExperiment("You Have finshied the experiment. Well done!")
+    }
+    return jsPsych.randomization.repeat([equal_pairs[0], equal_pairs[1], equal_pairs[2], equal_pairs[3]] ,1)
+  }
+  function get_prior_lst(){
+    if (STIM_TYPE == 'good'){    
+      var second_prior_lst = jsPsych.randomization.repeat([5, 7], 1)
+      var first_prior = 6
+      var second_prior = second_prior_lst[0]
+      var third_prior = second_prior_lst[1]
+      return [first_prior, second_prior, third_prior]
+    }
+
+    if (STIM_TYPE == 'bad'){
+      var second_prior_lst = jsPsych.randomization.repeat([1, 3], 1)
+      var first_prior = 2
+      var second_prior = second_prior_lst[0]
+      var third_prior = second_prior_lst[1]
+      return [first_prior, second_prior, third_prior]
+    }
+  }
+
+  function append_by_prior(equal_pairs_json, prior, equal_pairs){
+    temp_list = []
+    for (let i = 0; i <  equal_pairs_json[prior].length; ++i){
+      temp_list.push(equal_pairs_json[prior][i])
+      temp_list = check_temp_list(equal_pairs, temp_list)
+    }
+  }
+
+
+  function check_temp_list(equal_pairs, temp_list){
+    if (temp_list.length == 2){
+      equal_pairs.push([temp_list[0], temp_list[1]])
+      return []
+    }
+    return temp_list
+  }
+
+  function get_prefrence_choice_object_lst(equal_pairs_lst) {
+    pairs_lst = []
+    for (pair in equal_pairs_lst) {
+      pairs_lst.push('<img src="' + equal_pairs_lst[pair][0] + '" width="520" height="400"/> &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <img src="' + equal_pairs_lst[pair][1] + '" width="520" height="400" /> <br><br> Which do you prefer? <br><br> <b> Please press on the <b>D</b> key for the left image, or on the <b>L</b> key for the right image')
+    }
+    return pairs_lst
+  }
+
+  jsPsych.run(timeline);
+
+
+</script>
+
+</html>
